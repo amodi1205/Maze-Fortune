@@ -1,9 +1,22 @@
 var player, gameState;
-var maze = []
+var maze = [];
+var playerState;
+var coinsGroup;
+var coinImg;
+var coinCounter;
+var score = 0
+
+function preload(){
+
+coinImg = loadImage('Coin.png');
+
+}
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  
+
+  coinCounter = 0;
 
   player = createSprite(120, height-100, 30, 30);
   player.shapeColor = 'salmon'
@@ -57,13 +70,30 @@ function setup() {
   ob7.shapeColor = "violet"
   maze.push(ob7);
 
+  var playerState = 0;
+
+  coinsGroup = createGroup();
+
 }
 
 function draw() {
   background(30)  
 
+  if(playerState === 1){
+
+  
+
   if(keyWentDown(UP_ARROW)){
     player.velocityY = -5
+  }
+  player.velocityY += .25
+
+  if(player.collide(maze)){
+    player.x = 120;
+    player.y = height - 100;
+    player.setVelocity(0,0);
+    playerState = 0;
+    coinsGroup.destroyEach();
   }
 
 
@@ -73,8 +103,46 @@ function draw() {
  }
 
  if(keyWentDown(LEFT_ARROW)){
-   player.velocityX = 2
+   player.velocityX = -2
 }
 
+}
+  if(keyDown(UP_ARROW) || keyDown(RIGHT_ARROW) || keyDown(LEFT_ARROW)){
+    playerState = 1;
+  }
+
+
+  if(coinsGroup.length<5){
+    spawnCoins();
+  }
+
+
+  for(var i = 0;i<coinsGroup.length;i++){
+    var c = coinsGroup.get(i);
+    if(player.isTouching(c)){
+      c.destroy();
+      score++;
+    }
+  }
+
+
+  textSize(30);
+  fill('#006699')
+  text("Score: "+score,width/2-50,40);
+
   drawSprites();
+
+
+}
+
+function spawnCoins(){
+  if(frameCount % 30===0){
+    var coin = createSprite(random(100,width-100), random(60,height-70), 20,20);
+    coin.addImage(coinImg);
+    coin.scale = 0.15;
+    coinsGroup.add(coin);
+    coinCounter++;
+  }
+
+
 }
